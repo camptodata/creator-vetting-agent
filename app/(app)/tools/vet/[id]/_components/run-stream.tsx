@@ -51,7 +51,6 @@ export function RunStream({ runId, handle }: RunStreamProps) {
         [agent]: { status: "complete", event },
       }));
 
-      // Capture writer output for the final report
       if (agent === "writer" && data && "report" in data) {
         setWriterOutput(data as WriterOutput);
       }
@@ -68,7 +67,7 @@ export function RunStream({ runId, handle }: RunStreamProps) {
   }, []);
 
   useEffect(() => {
-    const url = `/api/vet/${runId}/stream`;
+    const url = `/api/runs/${runId}/stream`;
     const es = new EventSource(url);
     eventSourceRef.current = es;
 
@@ -91,7 +90,6 @@ export function RunStream({ runId, handle }: RunStreamProps) {
     };
   }, [runId, handleEvent]);
 
-  // Close SSE when pipeline completes or errors
   useEffect(() => {
     if (pipelineStatus !== "running" && eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -100,7 +98,6 @@ export function RunStream({ runId, handle }: RunStreamProps) {
 
   return (
     <div className="space-y-6">
-      {/* Pipeline header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Vetting: {handle}</h2>
@@ -111,7 +108,6 @@ export function RunStream({ runId, handle }: RunStreamProps) {
         <PipelineStatusBadge status={pipelineStatus} />
       </div>
 
-      {/* Agent steps */}
       <div className="space-y-3">
         {AGENT_ORDER.map((agent) => (
           <StepCard
@@ -123,7 +119,6 @@ export function RunStream({ runId, handle }: RunStreamProps) {
         ))}
       </div>
 
-      {/* Final report */}
       {writerOutput && <FinalReport writerOutput={writerOutput} />}
     </div>
   );

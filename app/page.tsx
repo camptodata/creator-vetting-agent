@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Shield, Database, GitBranch } from "lucide-react";
+import { Zap, ShieldCheck, MessageSquare, Database, Globe } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -12,7 +12,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2 font-semibold text-sm">
             <Zap className="h-4 w-4 text-primary" />
-            Creator Vetting Agent
+            Creator Ops Platform
           </div>
           <Button asChild size="sm">
             <Link href="/sign-in">Try the demo</Link>
@@ -23,15 +23,15 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="flex-1 flex flex-col items-center justify-center text-center px-4 py-24">
         <Badge variant="secondary" className="mb-6">
-          Built in an evening · Open source
+          Multi-tool platform · Built in an evening per tool
         </Badge>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight max-w-2xl mb-6">
-          AI-powered creator brand-safety vetting
+          AI-native creator ops platform
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mb-10">
-          Paste a handle. Watch a coordinator, scout, analyst, and writer agent
-          pipeline produce a structured brand-safety report — streamed live to
-          your browser.
+          Two tools sharing the same auth, persistence, and streaming
+          infrastructure — the pattern that makes internal AI tools scalable
+          across a creator marketing team.
         </p>
         <Button size="lg" asChild>
           <Link href="/sign-in">
@@ -44,59 +44,55 @@ export default function LandingPage() {
         </p>
       </section>
 
-      {/* Feature cards */}
+      {/* Tools */}
       <section className="border-t bg-muted/30">
         <div className="max-w-5xl mx-auto px-4 py-16">
-          <h2 className="text-xl font-semibold text-center mb-10">
-            How it works
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="p-2 rounded-md bg-blue-500/10 w-fit mb-3">
-                  <GitBranch className="h-5 w-5 text-blue-500" />
-                </div>
-                <CardTitle className="text-base">Multi-agent pipeline</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Coordinator decomposes the task. Scout generates a synthetic
-                  profile. Analyst scores brand-safety axes. Writer synthesizes
-                  the final report. Each agent uses Claude with Zod-typed
-                  structured output.
-                </p>
-              </CardContent>
-            </Card>
-
+          <h2 className="text-xl font-semibold text-center mb-10">The two tools</h2>
+          <div className="grid sm:grid-cols-2 gap-6">
             <Card>
               <CardHeader className="pb-3">
                 <div className="p-2 rounded-md bg-green-500/10 w-fit mb-3">
-                  <Shield className="h-5 w-5 text-green-500" />
+                  <ShieldCheck className="h-5 w-5 text-green-500" />
                 </div>
-                <CardTitle className="text-base">Brand-safety scoring</CardTitle>
+                <CardTitle className="text-base">/tools/vet — Creator Vetting</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  5 axes scored green/yellow/red: tone consistency, controversial
-                  topics risk, audience overlap, engagement health, and growth
-                  velocity. Each with structured reasoning and evidence.
+                <p className="text-sm text-muted-foreground mb-3">
+                  Multi-agent pipeline: Coordinator decomposes the task, Scout calls SerpAPI
+                  to fetch real web results, Analyst scores 5 brand-safety axes
+                  (green/yellow/red), Writer produces the final markdown report. Live SSE
+                  streams each step.
                 </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Coordinator", "Scout + SerpAPI", "Analyst", "Writer"].map((a) => (
+                    <Badge key={a} variant="outline" className="text-xs">
+                      {a}
+                    </Badge>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-3">
-                <div className="p-2 rounded-md bg-purple-500/10 w-fit mb-3">
-                  <Database className="h-5 w-5 text-purple-500" />
+                <div className="p-2 rounded-md bg-blue-500/10 w-fit mb-3">
+                  <MessageSquare className="h-5 w-5 text-blue-500" />
                 </div>
-                <CardTitle className="text-base">Structured output</CardTitle>
+                <CardTitle className="text-base">/tools/outreach — Outreach Drafter</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Every agent response is validated against a Zod schema via the
-                  Anthropic tools API. Results are persisted to Supabase Postgres
-                  with RLS. Runs are replayable.
+                <p className="text-sm text-muted-foreground mb-3">
+                  Single structured LLM call producing 3 personalized DM drafts for a
+                  creator + brand pair. Friendly, Direct, and Witty tones — each 80–150
+                  words with a personal hook and clear next step.
                 </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Friendly", "Direct", "Witty"].map((t) => (
+                    <Badge key={t} variant="outline" className="text-xs">
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -107,32 +103,78 @@ export default function LandingPage() {
       <section className="border-t">
         <div className="max-w-5xl mx-auto px-4 py-16">
           <h2 className="text-xl font-semibold text-center mb-8">Architecture</h2>
+          <div className="grid sm:grid-cols-3 gap-6 mb-10">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="p-2 rounded-md bg-purple-500/10 w-fit mb-3">
+                  <Database className="h-5 w-5 text-purple-500" />
+                </div>
+                <CardTitle className="text-base">Generic runs table</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  One <code>runs</code> + <code>run_steps</code> schema serves both tools.
+                  <code>tool_type</code> field dispatches to the right orchestrator.
+                  RLS enforced, all data user-scoped.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="p-2 rounded-md bg-orange-500/10 w-fit mb-3">
+                  <Globe className="h-5 w-5 text-orange-500" />
+                </div>
+                <CardTitle className="text-base">Real search data</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Scout calls SerpAPI for live web results scoped to Instagram,
+                  TikTok, and YouTube. Falls back to synthetic-profile mode if
+                  <code>SERPAPI_KEY</code> is unset.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="p-2 rounded-md bg-blue-500/10 w-fit mb-3">
+                  <Zap className="h-5 w-5 text-blue-500" />
+                </div>
+                <CardTitle className="text-base">SSE streaming</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Both tools stream events over Server-Sent Events. Each agent
+                  step appears live in the UI as it completes. No polling — one
+                  connection per run.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card className="overflow-hidden">
             <CardContent className="p-0">
               <pre className="text-xs leading-relaxed p-6 overflow-x-auto font-mono text-muted-foreground bg-muted/40">
                 {`  Browser (EventSource)
        │
-       │  GET /api/vet/[id]/stream  (SSE, text/event-stream)
+       │  GET /api/runs/[id]/stream  (SSE, dispatches by tool_type)
        │
        ▼
   Next.js Route Handler
        │
-       │  async generator: yields { type, agent, data } events
+       ├─► tool_type="vet" ──► vetOrchestrator
+       │       │
+       │       ├─► Coordinator  (Claude tool-use → TaskPlan)
+       │       ├─► Scout        (SerpAPI → Claude → ScoutOutput)
+       │       ├─► Analyst      (Claude tool-use → 5 brand-safety axes)
+       │       └─► Writer       (Claude tool-use → markdown report)
        │
-       ├─► Coordinator  ──────────────────────────────────────────►  TaskPlan
-       │        │ (Zod-validated via Anthropic tools API)
-       │
-       ├─► Scout  ───────────────────────────────────────────────►  ScoutOutput
-       │        │ (synthetic profile · disclaimer shown in UI)
-       │
-       ├─► Analyst  ─────────────────────────────────────────────►  AnalystOutput
-       │        │ (5 axes: green / yellow / red)
-       │
-       └─► Writer  ──────────────────────────────────────────────►  WriterOutput
-                │ (markdown report + recommendation)
-                │
-                ▼
-          Supabase Postgres  (vetting_runs + vetting_steps, RLS)`}
+       └─► tool_type="outreach" ──► outreachOrchestrator
+               │
+               └─► Drafter  (Claude structured output → 3 DM drafts)
+
+  All steps persist to: runs + run_steps (Supabase Postgres, RLS)`}
               </pre>
             </CardContent>
           </Card>
@@ -142,8 +184,8 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t">
         <div className="max-w-5xl mx-auto px-4 py-6 flex items-center justify-between text-xs text-muted-foreground">
-          <span>Creator Vetting Agent — MIT License</span>
-          <span>Next.js 15 · Supabase · Anthropic · shadcn/ui</span>
+          <span>Creator Ops Platform — MIT License</span>
+          <span>Next.js 16 · Supabase · Anthropic · SerpAPI · shadcn/ui</span>
         </div>
       </footer>
     </div>

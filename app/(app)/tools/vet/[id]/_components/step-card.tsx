@@ -4,17 +4,17 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronDown, ChevronUp, Loader2, CheckCircle, XCircle } from "lucide-react";
-import type { SSEEvent, AgentName } from "@/lib/agents/types";
+import { ChevronDown, ChevronUp, Loader2, CheckCircle, XCircle, AlertTriangle, ExternalLink } from "lucide-react";
+import type { SSEEvent, AgentName, ScoutOutput } from "@/lib/agents/types";
 
-const AGENT_LABELS: Partial<Record<AgentName, { title: string; description: string }>> = {
+const AGENT_LABELS: Record<AgentName, { title: string; description: string }> = {
   coordinator: {
     title: "Coordinator",
     description: "Decomposing vetting task into a plan",
   },
   scout: {
     title: "Scout",
-    description: "Generating creator profile",
+    description: "Searching for creator profile data",
   },
   analyst: {
     title: "Analyst",
@@ -23,6 +23,10 @@ const AGENT_LABELS: Partial<Record<AgentName, { title: string; description: stri
   writer: {
     title: "Writer",
     description: "Synthesizing final vetting report",
+  },
+  drafter: {
+    title: "Drafter",
+    description: "Writing outreach DM drafts",
   },
 };
 
@@ -36,7 +40,7 @@ interface StepCardProps {
 
 export function StepCard({ agent, status, event }: StepCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const label: { title: string; description: string } = AGENT_LABELS[agent] ?? { title: agent, description: "" };
+  const label = AGENT_LABELS[agent] ?? { title: agent, description: "" };
 
   return (
     <Card
@@ -152,26 +156,65 @@ function AgentOutput({
   }
 
   if (agent === "scout" && "niche" in data) {
-    const profile = data as import("@/lib/agents/types").ScoutOutput;
+    const profile = data as ScoutOutput;
     return (
-      <div className="grid grid-cols-2 gap-3 text-xs">
-        {[
-          ["Niche", profile.niche],
-          ["Platform", profile.platform],
-          ["Audience", `${profile.audienceSizeBand} (${profile.estimatedFollowers})`],
-          ["Cadence", profile.contentCadence],
-          ["Growth", profile.growthTrend],
-          ["Demographics", profile.audienceDemographics],
-        ].map(([label, value]) => (
-          <div key={label}>
-            <span className="font-medium text-muted-foreground">{label}: </span>
-            <span>{value}</span>
+      <div className="space-y-4">
+        {/* Synthetic disclaimer */}
+        {profile.synthetic && (
+          <div className="flex items-start gap-2 p-2 rounded-md bg-yellow-500/10 border border-yellow-500/20">
+            <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              <strong>Demo mode:</strong> Profile inferred from handle alone — no live search performed. Set{" "}
+              <code className="text-xs">SERPAPI_KEY</code> for real data.
+            </p>
           </div>
-        ))}
-        <div className="col-span-2">
-          <span className="font-medium text-muted-foreground">Sample Topics: </span>
-          <span>{profile.samplePostTopics.join(", ")}</span>
+        )}
+
+        {/* Profile fields */}
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          {[
+            ["Niche", profile.niche],
+            ["Platform", profile.platform],
+            ["Audience", `${profile.audienceSizeBand} (${profile.estimatedFollowers})`],
+            ["Cadence", profile.contentCadence],
+            ["Growth", profile.growthTrend],
+            ["Demographics", profile.audienceDemographics],
+          ].map(([label, value]) => (
+            <div key={label}>
+              <span className="font-medium text-muted-foreground">{label}: </span>
+              <span>{value}</span>
+            </div>
+          ))}
+          <div className="col-span-2">
+            <span className="font-medium text-muted-foreground">Sample Topics: </span>
+            <span>{profile.samplePostTopics.join(", ")}</span>
+          </div>
         </div>
+
+        {/* Search results */}
+        {!profile.synthetic && profile.searchResults && profile.searchResults.length > 0 && (
+          <div>
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Search Results Used
+            </span>
+            <ul className="mt-2 space-y-2">
+              {profile.searchResults.map((result, i) => (
+                <li key={i} className="text-xs border rounded-md p-2">
+                  <a
+                    href={result.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-1 font-medium text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                    {result.title}
+                  </a>
+                  <p className="text-muted-foreground mt-0.5">{result.snippet}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     );
   }

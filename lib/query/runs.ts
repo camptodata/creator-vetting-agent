@@ -5,20 +5,21 @@ import { createClient } from "@/lib/supabase/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface VettingRun {
+export interface Run {
   id: string;
   user_id: string;
-  creator_handle: string;
+  tool_type: "vet" | "outreach";
+  input: Record<string, string>;
   status: "running" | "complete" | "failed";
-  final_report: string | null;
+  final_output: Record<string, unknown> | null;
   created_at: string;
   completed_at: string | null;
 }
 
-export interface VettingStep {
+export interface RunStep {
   id: string;
   run_id: string;
-  agent: "coordinator" | "scout" | "analyst" | "writer";
+  agent: string;
   status: "running" | "complete" | "failed";
   output: Record<string, unknown> | null;
   reasoning: string | null;
@@ -28,78 +29,94 @@ export interface VettingStep {
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
-export function useVettingRun(runId: string) {
+export function useRun(runId: string) {
   return useQuery({
-    queryKey: ["vetting-run", runId],
+    queryKey: ["run", runId],
     queryFn: async () => {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from("vetting_runs")
+        .from("runs")
         .select("*")
         .eq("id", runId)
         .single();
       if (error) throw error;
-      return data as VettingRun;
+      return data as Run;
     },
     enabled: !!runId,
   });
 }
 
-export function useVettingSteps(runId: string) {
+export function useRunSteps(runId: string) {
   return useQuery({
-    queryKey: ["vetting-steps", runId],
+    queryKey: ["run-steps", runId],
     queryFn: async () => {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from("vetting_steps")
+        .from("run_steps")
         .select("*")
         .eq("run_id", runId)
         .order("started_at", { ascending: true });
       if (error) throw error;
-      return data as VettingStep[];
+      return data as RunStep[];
     },
     enabled: !!runId,
   });
 }
 
-export function useVettingRuns() {
+export function useRecentRuns() {
   return useQuery({
-    queryKey: ["vetting-runs"],
+    queryKey: ["recent-runs"],
     queryFn: async () => {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from("vetting_runs")
-        .select("*")
+        .from("runs")
+        .select("id, tool_type, input, status, created_at")
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(10);
       if (error) throw error;
-      return data as VettingRun[];
+      return data as Pick<Run, "id" | "tool_type" | "input" | "status" | "created_at">[];
     },
   });
 }
 
-// ─── Mutations ────────────────────────────────────────────────────────────────
+// ─── Create Run mutation ──────────────────────────────────────────────────────
 
-export function useCreateVettingRun() {
+type CreateRunPayload =
+  | { tool_type: "vet"; input: { handle: string } }
+  | { tool_type: "outreach"; input: { creatorProfile: string; brandContext: string } };
+
+export function useCreateRun() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (handle: string) => {
-      const response = await fetch("/api/vet", {
+    mutationFn: async (payload: CreateRunPayload) => {
+      const response = await fetch("/api/runs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ handle }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Unknown error" }));
-        throw new Error(error.message ?? "Failed to create vetting run");
+        throw new Error(error.message ?? "Failed to create run");
       }
 
       return response.json() as Promise<{ runId: string }>;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vetting-runs"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-runs"] });
     },
   });
+}
+
+// ─── Legacy compat — kept so old imports don't break during transition ────────
+
+/** @deprecated Use useCreateRun instead */
+export function useCreateVettingRun() {
+  const { mutate: createRun, ...rest } = useCreateRun();
+  return {
+    mutate: (handle: string, opts?: Parameters<typeof createRun>[1]) =>
+      createRun({ tool_type: "vet", input: { handle } }, opts),
+    ...rest,
+  };
 }
