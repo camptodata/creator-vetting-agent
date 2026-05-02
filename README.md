@@ -4,7 +4,7 @@ A small internal-tools platform with two tools, built in your stack. Demonstrate
 
 ## Live demo
 
-[link — added after deploy]
+**Live demo:** https://creator-vetting-agent.vercel.app
 
 ## Why this exists
 
