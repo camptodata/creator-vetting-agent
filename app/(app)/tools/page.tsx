@@ -12,7 +12,7 @@ const TOOLS = [
     iconBg: "bg-green-500/10",
     title: "Creator Vetting",
     description:
-      "Multi-agent pipeline: coordinator → scout (SerpAPI) → analyst → writer. Scores 5 brand-safety axes and produces a structured vetting report.",
+      "Multi-agent pipeline: coordinator → scout (ScrapingDog) → analyst → writer. Scores 5 brand-safety axes and produces a structured vetting report.",
     badge: "4-agent pipeline",
     badgeVariant: "secondary" as const,
   },

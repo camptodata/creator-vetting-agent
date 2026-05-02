@@ -45,7 +45,7 @@ export function FinalReport({ writerOutput }: FinalReportProps) {
         <div className="flex items-start gap-2 text-xs text-muted-foreground">
           <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-yellow-500" />
           <p>
-            <strong>Note:</strong> Profile data sourced from SerpAPI web search
+            <strong>Note:</strong> Profile data sourced from ScrapingDog web search
             where available. A production version would integrate Instagram/TikTok
             APIs, real engagement metrics, and longitudinal growth signals.
           </p>

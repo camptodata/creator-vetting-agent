@@ -165,7 +165,7 @@ function AgentOutput({
             <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-muted-foreground">
               <strong>Demo mode:</strong> Profile inferred from handle alone — no live search performed. Set{" "}
-              <code className="text-xs">SERPAPI_KEY</code> for real data.
+              <code className="text-xs">SCRAPINGDOG_API_KEY</code> for real data.
             </p>
           </div>
         )}

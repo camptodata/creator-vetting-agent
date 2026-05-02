@@ -1,4 +1,4 @@
-import { getJson } from "serpapi";
+import { scrapingdogSearch } from "@/lib/search/scrapingdog";
 import { callWithZodTool } from "./anthropic-client";
 import {
   ScoutOutputSchema,
@@ -27,14 +27,14 @@ export async function runScout(
   handle: string,
   plan: TaskPlan
 ): Promise<ScoutOutput> {
-  const serpApiKey = process.env.SERPAPI_KEY;
+  const scrapingdogApiKey = process.env.SCRAPINGDOG_API_KEY;
 
-  if (!serpApiKey) {
+  if (!scrapingdogApiKey) {
     // Synthetic fallback — no key
     return runScoutSynthetic(handle, plan);
   }
 
-  return runScoutReal(handle, plan, serpApiKey);
+  return runScoutReal(handle, plan, scrapingdogApiKey);
 }
 
 // ─── Synthetic path ───────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ async function runScoutSynthetic(
 async function runScoutReal(
   handle: string,
   plan: TaskPlan,
-  serpApiKey: string
+  apiKey: string
 ): Promise<ScoutOutput> {
   // Normalize handle — strip leading @ for search query
   const bare = handle.replace(/^@/, "");
@@ -71,33 +71,22 @@ async function runScoutReal(
   let searchResults: SearchResult[] = [];
 
   try {
-    const serpResults = await getJson({
-      engine: "google",
-      q: `${bare} site:instagram.com OR site:tiktok.com OR site:youtube.com OR site:twitter.com`,
-      num: 5,
-      api_key: serpApiKey,
-    });
+    const results = await scrapingdogSearch(
+      `${bare} site:instagram.com OR site:tiktok.com OR site:youtube.com OR site:twitter.com`,
+      apiKey,
+      { results: 10 }
+    );
 
-    const organicResults = (serpResults.organic_results ?? []) as Array<{
-      title?: string;
-      link?: string;
-      snippet?: string;
-    }>;
-
-    searchResults = organicResults.slice(0, 5).map((r) => ({
-      title: r.title ?? "",
-      link: r.link ?? "",
-      snippet: r.snippet ?? "",
-    }));
+    searchResults = results.slice(0, 5);
   } catch (err) {
-    // SerpAPI call failed — fall back to synthetic rather than crash
-    console.warn("[scout] SerpAPI call failed, falling back to synthetic:", err);
+    // ScrapingDog call failed — fall back to synthetic rather than crash
+    console.warn("[scout] ScrapingDog call failed, falling back to synthetic:", err);
     return runScoutSynthetic(handle, plan);
   }
 
   // If no results came back, fall back to synthetic
   if (searchResults.length === 0) {
-    console.warn("[scout] SerpAPI returned 0 results, falling back to synthetic");
+    console.warn("[scout] ScrapingDog returned 0 results, falling back to synthetic");
     return runScoutSynthetic(handle, plan);
   }
 

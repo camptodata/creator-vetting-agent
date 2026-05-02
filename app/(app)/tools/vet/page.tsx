@@ -36,14 +36,14 @@ export default function VetPage() {
     <div className="max-w-2xl mx-auto px-4 py-16">
       <div className="text-center mb-10">
         <Badge variant="secondary" className="mb-4">
-          SerpAPI + Claude
+          ScrapingDog + Claude
         </Badge>
         <h1 className="text-3xl font-bold tracking-tight mb-3">
           Vet a Creator
         </h1>
         <p className="text-muted-foreground text-lg">
           Paste a creator handle and our 4-agent pipeline will generate a
-          brand-safety vetting report — with real web search when a SerpAPI key
+          brand-safety vetting report — with real web search when a ScrapingDog key
           is configured.
         </p>
       </div>
@@ -121,7 +121,7 @@ export default function VetPage() {
             <div>
               <p className="text-sm font-medium">Real web search</p>
               <p className="text-xs text-muted-foreground mt-1">
-                SerpAPI fetches live results when key is set
+                ScrapingDog fetches live results when key is set
               </p>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default function VetPage() {
       </div>
 
       <p className="text-center text-xs text-muted-foreground mt-8 px-4">
-        If <code>SERPAPI_KEY</code> is not set, the Scout agent falls back to
+        If <code>SCRAPINGDOG_API_KEY</code> is not set, the Scout agent falls back to
         synthetic-profile mode and shows a disclaimer in the results.
       </p>
     </div>

@@ -58,13 +58,13 @@ export default function LandingPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Multi-agent pipeline: Coordinator decomposes the task, Scout calls SerpAPI
+                  Multi-agent pipeline: Coordinator decomposes the task, Scout calls ScrapingDog
                   to fetch real web results, Analyst scores 5 brand-safety axes
                   (green/yellow/red), Writer produces the final markdown report. Live SSE
                   streams each step.
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {["Coordinator", "Scout + SerpAPI", "Analyst", "Writer"].map((a) => (
+                  {["Coordinator", "Scout + ScrapingDog", "Analyst", "Writer"].map((a) => (
                     <Badge key={a} variant="outline" className="text-xs">
                       {a}
                     </Badge>
@@ -129,9 +129,9 @@ export default function LandingPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Scout calls SerpAPI for live web results scoped to Instagram,
+                  Scout calls ScrapingDog for live web results scoped to Instagram,
                   TikTok, and YouTube. Falls back to synthetic-profile mode if
-                  <code>SERPAPI_KEY</code> is unset.
+                  <code>SCRAPINGDOG_API_KEY</code> is unset.
                 </p>
               </CardContent>
             </Card>
@@ -166,7 +166,7 @@ export default function LandingPage() {
        ├─► tool_type="vet" ──► vetOrchestrator
        │       │
        │       ├─► Coordinator  (Claude tool-use → TaskPlan)
-       │       ├─► Scout        (SerpAPI → Claude → ScoutOutput)
+       │       ├─► Scout        (ScrapingDog → Claude → ScoutOutput)
        │       ├─► Analyst      (Claude tool-use → 5 brand-safety axes)
        │       └─► Writer       (Claude tool-use → markdown report)
        │
@@ -185,7 +185,7 @@ export default function LandingPage() {
       <footer className="border-t">
         <div className="max-w-5xl mx-auto px-4 py-6 flex items-center justify-between text-xs text-muted-foreground">
           <span>Creator Ops Platform — MIT License</span>
-          <span>Next.js 16 · Supabase · Anthropic · SerpAPI · shadcn/ui</span>
+          <span>Next.js 16 · Supabase · Anthropic · ScrapingDog · shadcn/ui</span>
         </div>
       </footer>
     </div>

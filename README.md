@@ -16,7 +16,7 @@ I saw the JD's bullets — "AI-powered evaluation systems", "creator matching", 
 
 Multi-agent pipeline:
 1. Coordinator decomposes the vetting task
-2. Scout calls **SerpAPI** to fetch real web results for the handle, summarizes via Claude
+2. Scout calls **ScrapingDog** to fetch real web results for the handle, summarizes via Claude
 3. Analyst scores 5 brand-safety axes (green/yellow/red)
 4. Writer composes the final report
 
@@ -32,7 +32,7 @@ Streamed LLM call producing 3 personalized DM drafts (Friendly / Direct / Witty)
 - **Auth:** Supabase Auth (magic link)
 - **DB:** Supabase Postgres with RLS — generic `runs` + `run_steps` tables serve both tools
 - **LLM:** Anthropic Claude with structured tool output (Zod schemas)
-- **Search:** SerpAPI (free trial; falls back to synthetic-profile mode if missing)
+- **Search:** ScrapingDog Universal Search API (falls back to synthetic-profile mode if missing)
 - **Streaming:** Server-Sent Events
 - **Deploy:** Vercel
 
@@ -44,7 +44,7 @@ Streamed LLM call producing 3 personalized DM drafts (Friendly / Direct / Witty)
               ├─▶ /tools/vet ──▶ POST /api/runs ──▶ runs row ──▶ vetOrchestrator
               │                                                   │
               │                                                   ├─▶ Coordinator (Claude tool-use)
-              │                                                   ├─▶ Scout (SerpAPI → Claude)
+              │                                                   ├─▶ Scout (ScrapingDog → Claude)
               │                                                   ├─▶ Analyst (Claude tool-use)
               │                                                   └─▶ Writer (Claude tool-use)
               │                                                          │
@@ -67,21 +67,21 @@ pnpm dev
 Required env vars:
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`
 - `ANTHROPIC_API_KEY`
-- `SERPAPI_KEY` (optional — vetting falls back to synthetic profile if missing)
+- `SCRAPINGDOG_API_KEY` (optional — vetting falls back to synthetic profile if missing)
 
 ## What this is NOT
 
 - Not a product. It's a portfolio piece sized to fit one evening per tool.
-- Not connected to real platform APIs (Instagram, TikTok, etc.) — that's the next step. SerpAPI is the cheap proxy for "real data".
+- Not connected to real platform APIs (Instagram, TikTok, etc.) — that's the next step. ScrapingDog is the cheap proxy for "real data".
 - Not optimized for cost or scale — single LLM provider, no retries, no batching.
 
 ## What I'd build next (in priority order)
 
-1. **Real platform APIs** — Instagram Graph + TikTok Business + YouTube Data — instead of relying on SerpAPI for indirect signal
+1. **Real platform APIs** — Instagram Graph + TikTok Business + YouTube Data — instead of relying on ScrapingDog for indirect signal
 2. **More tools on the same shell** — campaign brief generator, performance anomaly spotter, reply triager — each ~3-4h on top of the existing infra
 3. **pgvector audience overlap** — match creators by audience embedding rather than handle keyword search
 4. **Longitudinal vetting** — re-vet creators every N days, alert on flag changes
-5. **Cost telemetry** — per-run LLM/SerpAPI cost tracking, surfaced in the runs sidebar (the platform pattern that justifies an internal tools shell)
+5. **Cost telemetry** — per-run LLM/ScrapingDog cost tracking, surfaced in the runs sidebar (the platform pattern that justifies an internal tools shell)
 
 ## License
 
