@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Creator Vetting Agent
 
-## Getting Started
+Multi-agent creator brand-safety vetting. Paste a handle, watch a coordinator/scout/analyst/writer pipeline produce a structured brand-safety report — built in an evening to demonstrate the kind of AI-native ops tooling I'd build at a creator marketing platform.
 
-First, run the development server:
+**Live:** https://creator-vetting-agent.vercel.app _(deploy in progress)_
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Why this
+
+The 8x Social founding engineer JD mentions "AI-powered evaluation systems that score creator content." I wanted to show the smallest possible production-quality version of that: a multi-agent pipeline that decompose the task, generates a profile, scores brand-safety axes, and writes a structured report — all streamed live to the browser via SSE.
+
+The architecture mirrors my [`research-agent`](https://github.com/camptodata/research-agent) repo intentionally — same orchestration pattern, different domain.
+
+---
+
+## Stack
+
+- **Next.js 15** — App Router, TypeScript strict, Tailwind 4, shadcn/ui
+- **Supabase** — Auth (magic link), Postgres, Row Level Security
+- **Anthropic Claude** — 4-agent pipeline with Zod-typed structured tool output
+- **TanStack Query v5** — server state, mutations
+- **Vercel** — deployment + SSE streaming via Node runtime
+
+---
+
+## Architecture
+
+```
+  Browser (EventSource)
+       │
+       │  GET /api/vet/[id]/stream  (SSE, text/event-stream)
+       │
+       ▼
+  Next.js Route Handler
+       │
+       │  async generator: yields { type, agent, data } events
+       │
+       ├─► Coordinator  ──────────────────────────────────────────►  TaskPlan
+       │        │ (Zod-validated via Anthropic tools API)
+       │
+       ├─► Scout  ───────────────────────────────────────────────►  ScoutOutput
+       │        │ (synthetic profile · disclaimer shown in UI)
+       │
+       ├─► Analyst  ─────────────────────────────────────────────►  AnalystOutput
+       │        │ (5 axes: green / yellow / red)
+       │
+       └─► Writer  ──────────────────────────────────────────────►  WriterOutput
+                │ (markdown report + recommendation)
+                │
+                ▼
+          Supabase Postgres  (vetting_runs + vetting_steps, RLS)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Each agent calls Claude via `messages.create` with a `tools` parameter and `tool_choice: { type: "tool", name }` — forcing structured, Zod-validated output. The orchestrator is an `async function*` that yields SSE events as each agent completes.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run locally
 
-## Learn More
+```bash
+git clone https://github.com/camptodata/creator-vetting-agent
+cd creator-vetting-agent
+pnpm install
 
-To learn more about Next.js, take a look at the following resources:
+# 1. Copy env template and fill in your values
+cp .env.example .env.local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 2. Paste the schema into your Supabase SQL editor:
+#    supabase/migrations/0001_init.sql
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 3. Start dev server
+pnpm dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Environment variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe key (`sb_publishable_...`) |
+| `SUPABASE_SECRET_KEY` | Server-only key (`sb_secret_...`) |
+| `ANTHROPIC_API_KEY` | From console.anthropic.com |
+| `NEXT_PUBLIC_SITE_URL` | Production URL (for auth redirects) |
+
+---
+
+## Synthetic mode disclaimer
+
+This is a demo. The Scout agent generates a **plausible synthetic profile** from the creator handle alone — no real platform APIs are called, no scraping occurs. The UI makes this explicit with a visible disclaimer on every vetting result.
+
+A production version would integrate:
+- Instagram Graph API / TikTok Research API for real posts, follower counts, engagement
+- Platform brand-safety classification scores (where available)
+- Longitudinal growth signals (re-vet every N days, diff on flag changes)
+
+---
+
+## What I'd build next
+
+- **Real platform API ingestion** — Instagram/TikTok APIs with OAuth, cached in Supabase, invalidated on re-vet
+- **Audience-overlap via embeddings + pgvector** — embed audience demographics, vector-similarity against known brand audiences to score overlap
+- **Longitudinal vetting** — scheduled re-vet runs, webhook alerts when a creator's score changes from green → yellow/red
+
+---
+
+## License
+
+MIT — Copyright (c) 2026 Nick Hartmann
