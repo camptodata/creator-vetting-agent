@@ -81,7 +81,10 @@ export function RunStream({ runId, handle }: RunStreamProps) {
     };
 
     es.onerror = () => {
-      setPipelineStatus("error");
+      // Only flag as error if we haven't already completed.
+      // The browser fires onerror when the server closes a clean SSE stream,
+      // which would otherwise overwrite a just-set "complete" state.
+      setPipelineStatus((prev) => (prev === "running" ? "error" : prev));
       es.close();
     };
 

@@ -43,7 +43,10 @@ export function OutreachStream({ runId }: OutreachStreamProps) {
     };
 
     es.onerror = () => {
-      setStatus("error");
+      // Only flag as error if we haven't already completed.
+      // The browser fires onerror when the server closes a clean SSE stream,
+      // which would otherwise overwrite a just-set "complete" state.
+      setStatus((prev) => (prev === "running" ? "error" : prev));
       es.close();
     };
 
@@ -70,12 +73,14 @@ export function OutreachStream({ runId }: OutreachStreamProps) {
         <StatusBadge status={status} />
       </div>
 
-      {status === "error" ? (
+      {drafts ? (
+        <DraftsView drafts={drafts} isLoading={false} />
+      ) : status === "error" ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">Failed to generate drafts. Please try again.</p>
         </div>
       ) : (
-        <DraftsView drafts={drafts} isLoading={status === "running" && !drafts} />
+        <DraftsView drafts={null} isLoading={true} />
       )}
     </div>
   );
