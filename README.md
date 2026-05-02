@@ -6,6 +6,8 @@ A small internal-tools platform with two tools, built in your stack. Demonstrate
 
 **Live demo:** https://creator-vetting-agent.vercel.app
 
+**No signup required** — click "Try the demo — no signup" on the landing page.
+
 ## Why this exists
 
 I saw the JD's bullets — "AI-powered evaluation systems", "creator matching", "campaign automation pipelines", "internal tools that make the team 10x more efficient". The pattern across all of them is: a platform of small AI-native tools, each owning one ops task, sharing the same auth / persistence / observability infrastructure. So I built that, in your stack, with two real tools to demonstrate the architecture.
@@ -29,7 +31,7 @@ Streamed LLM call producing 3 personalized DM drafts (Friendly / Direct / Witty)
 ## Stack
 
 - **Frontend:** Next.js 16 App Router, Tailwind, shadcn/ui, TanStack Query
-- **Auth:** Supabase Auth (magic link)
+- **Auth:** Supabase Auth (magic link + anonymous guest sign-in)
 - **DB:** Supabase Postgres with RLS — generic `runs` + `run_steps` tables serve both tools
 - **LLM:** Anthropic Claude with structured tool output (Zod schemas)
 - **Search:** ScrapingDog Universal Search API (falls back to synthetic-profile mode if missing)

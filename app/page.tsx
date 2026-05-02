@@ -14,9 +14,9 @@ export default function LandingPage() {
             <Zap className="h-4 w-4 text-primary" />
             Creator Ops Platform
           </div>
-          <Button asChild size="sm">
-            <Link href="/sign-in">Try the demo</Link>
-          </Button>
+          <form action="/api/auth/anon" method="POST">
+            <Button size="sm" type="submit">Try the demo</Button>
+          </form>
         </div>
       </header>
 
@@ -33,14 +33,17 @@ export default function LandingPage() {
           infrastructure — the pattern that makes internal AI tools scalable
           across a creator marketing team.
         </p>
-        <Button size="lg" asChild>
-          <Link href="/sign-in">
+        <form action="/api/auth/anon" method="POST">
+          <Button size="lg" type="submit">
             <Zap className="h-4 w-4 mr-2" />
-            Try the demo
-          </Link>
-        </Button>
+            Try the demo — no signup
+          </Button>
+        </form>
         <p className="text-xs text-muted-foreground mt-4">
-          Magic-link sign in. No password required.
+          or{" "}
+          <Link href="/sign-in" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            sign in with email
+          </Link>
         </p>
       </section>
 

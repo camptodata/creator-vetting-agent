@@ -38,7 +38,7 @@ export default async function AppLayout({
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground truncate max-w-[200px]">
-              {user.email}
+              {user.email ?? "Guest"}
             </span>
             <form action={signOut}>
               <Button variant="ghost" size="sm" type="submit" className="gap-2">
